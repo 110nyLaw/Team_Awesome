@@ -1,0 +1,7 @@
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
+.venv/
+
+# raw pulls are reproducible from Data_ingestion/fetch_gamelogs.py (~88 MB)
+data/
