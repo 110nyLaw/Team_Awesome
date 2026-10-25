@@ -6,14 +6,12 @@ Usage:
     python src/EDA/explore.py     
 """
 
-import argparse
-import time
+import random
 from pathlib import Path
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from requests.exceptions import ReadTimeout
 
 RAWDATA = Path(__file__).resolve().parents[2] / "data" / "raw"
 FIGURESPATH = Path(__file__).resolve().parents[2] / "figures"
@@ -22,12 +20,21 @@ START_SEASON = "2015-16"
 
 '''
 read all the files in the given directory and describe the two main with visuals
+only emits the 2015-16 and 2025-26 stats with describe() and .shape
+emits three graphs and top correlated features for historical player and team logs
 ''' 
 def read_files() :
     pd.set_option('display.max_columns', None) #do not truncate
     for item in RAWDATA.iterdir() :
         if item.is_file() :
-            describe_files(item, 'FG3M')
+            if item.stem == "player_gamelogs_regular_2015-16" or item.stem == "player_gamelogs_regular_2025-26": #("player_gamelogs_regular" or "team_gamelogs_regular"):
+                print("\n" + str(item.stem) + " statistics")
+                df = pd.read_csv(item)
+                df = df.drop(columns = ["VIDEO_AVAILABLE", 'SEASON_ID', 'PLAYER_ID', 'TEAM_ID', 'GAME_ID'])
+                print("Shape: " + str(df.shape))
+                print(df.describe())
+            else :
+                describe_files(item, 'FG3M')
 
 
 '''
@@ -40,8 +47,7 @@ def describe_files(path, target) :
     if path.stem ==  "player_gamelogs_regular" :
         df = pd.read_csv(path)
         df = df.drop(columns = ['WL', 'VIDEO_AVAILABLE', 'PLUS_MINUS', 'FTM']) #not used
-        print("Descriptive Statistics of the regular season player game logs: ")
-        print(df.describe())
+        print("\n\nDescriptive Statistics of the regular season player game logs: ")
 
         print("Column types: ")
         print(df.dtypes)
@@ -49,7 +55,7 @@ def describe_files(path, target) :
         print("Shape: ")
         print(df.shape)
 
-        remove = ['FG_PCT', 'FT_PCT', 'FG3_PCT', 'PLAYER_ID', 'PLAYER_NAME', 'SEASON_ID', 'TEAM_ID', 'TEAM_ABBREVIATION', 'TEAM_NAME', 'GAME_ID', 'MATCHUP', 'GAME_DATE', target]
+        remove = ['FGM', 'FG3A', 'FGA', 'FG_PCT', 'FT_PCT', 'PTS', 'FG3_PCT', 'PLAYER_ID', 'PLAYER_NAME', 'SEASON_ID', 'TEAM_ABBREVIATION', 'TEAM_NAME', 'GAME_ID', 'MATCHUP', 'GAME_DATE', target]
         print(topCorrelations(df, target, remove, 3))
 
         playerAvg3Min(df, 15)
@@ -59,7 +65,7 @@ def describe_files(path, target) :
         df = pd.read_csv(path)
         df = df.drop(columns = ['WL', 'VIDEO_AVAILABLE', 'PLUS_MINUS', 'FTM']) #not used in analysis
         print("Descriptive statistics of the regular season team game logs: ")
-        print(df.describe())
+        #print(df.describe())
 
         print("Column types: ")
         print(df.dtypes)
@@ -67,7 +73,7 @@ def describe_files(path, target) :
         print("Shape: ")
         print(df.shape)
 
-        remove = ['FG_PCT', 'FT_PCT', 'FG3_PCT', 'SEASON_ID', 'TEAM_ID', 'TEAM_ABBREVIATION', 'TEAM_NAME', 'GAME_ID', 'MATCHUP', 'GAME_DATE', target]
+        remove = ['FGM', 'FG3A', 'FGA','FG_PCT', 'PTS', 'FT_PCT', 'FG3_PCT', 'SEASON_ID', 'TEAM_ABBREVIATION', 'TEAM_NAME', 'GAME_ID', 'MATCHUP', 'GAME_DATE', target]
         print(topCorrelations(df, target, remove, 3))
 
         teamAvg3(df)
@@ -97,10 +103,11 @@ def topCorrelations(df, target, remove, topNum):
         correlations[i] = targetColumn.corr(tempDf.iloc[:,i])
 
     if topNum > tempDf.shape[1] : #return only the single most correlated if not enough columns
-        return str(tempDf.columns[np.argmax(correlations)])
+        return str(tempDf.columns[np.argmax(correlations) + str(correlations[np.argmax(correlations)])])
     else :
         topXInd = np.argsort(correlations)[-topNum:][::-1]
-        return str(tempDf.columns[topXInd])
+        return str(tempDf.columns[topXInd]) + str(correlations[topXInd])
+
 
 
 '''
@@ -119,7 +126,6 @@ def teamAvg3(df):
     plt.xlabel("Teams")
     plt.ylabel("Average Field Goal 3 Pointers Made")
     plt.title("Historical Average Field Goal 3 Pointers Made Per Team Per Game (Regular Seasons 2015-2026)")
-    #plt.tight_layout()
     plt.plot()
     plt.savefig(FIGURESPATH/ "3_Avg_Team_Game", dpi=300, bbox_inches="tight")
     plt.close()
@@ -166,8 +172,17 @@ def playerAvg3Min(df, pct):
     bottom = sortedList[len(sortedList) - pct:]
     extremes = pd.concat([top, bottom]).drop_duplicates()
 
+    usedColors = set()#distinct colors for all
+
     for name, player in extremes.groupby('PLAYER_NAME') : #plot, color by name
-        plt.scatter( player['MIN'], player['FG3M'], label = name)
+        color = f'#{random.randint(0, 0xFFFFFF):06x}'
+        while color in usedColors:
+            color = f'#{random.randint(0, 0xFFFFFF):06x}'
+
+        usedColors.add(color)
+        plt.scatter( player['MIN'], player['FG3M'], label = name, color = color )
+
+
     plt.title(f"Total Minutes Played vs Field Goal 3's Made of Top and Bottom {pct} Players (Regular Seasons 2015-2026)")
     plt.xlabel("Total Minutes Played")
     plt.ylabel("Field Goal 3 Pointers Made")
