@@ -45,7 +45,7 @@ Team_Awesome/
 ```
 ## Running the scripts
 
-The scripts use `nba_api`, `pandas`, `requests`, `numpy`, and `matplotlib`. The repository does not yet include an environment file with the team's Python and package versions. The command below installs the required packages without pinning versions:
+The scripts use `nba_api`, `pandas`, `requests`, `numpy`, and `matplotlib`.  The command below installs the required packages without pinning versions:
 
 ```bash
 python -m pip install nba_api pandas requests numpy matplotlib
