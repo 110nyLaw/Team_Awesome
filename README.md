@@ -1,9 +1,7 @@
-# Team_Awesome
-Data 1030 Project
 # Predicting NBA Players’ Three-Point Production Using Machine Learning
 
 **DATA1030 | Brown University | Fall 2026**  
- Yinge Tong, Nyla Lawrence, and Ruben Chung
+**Team Awesome:** Yinge Tong, Nyla Lawrence, and Ruben Chung
 
 ## Project overview
 
@@ -24,7 +22,9 @@ The documented data collection covers the **2015–16 through 2025–26 regular 
 
 The player records cover 1,554 distinct players and 13,209 games. Raw CSV files are excluded from version control and can be generated using the collection script.
 
-See [the data collection README](Data_ingestion/README.md) for additional details about the source, cached files, missing values, and data checks. These descriptive statistics refer to the documented collection; later downloads may contain additional records.
+See [the data collection README](src/Data_ingestion/README.md) for additional details about the source, cached files, missing values, and data checks. These descriptive statistics refer to the documented collection; later downloads may contain additional records.
+
+Field definitions are provided in the [data dictionary](src/Data_ingestion/data_dictionary.md).
 
 ## Current repository structure
 
@@ -33,12 +33,20 @@ Team_Awesome/
 ├── README.md
 ├── LICENSE
 ├── .gitignore
-└── Data_ingestion/
-    ├── README.md
-    └── fetch_gamelogs.py
+├── figures/
+│   ├── 3_Avg_Team_Game.png
+│   ├── Player_Minutes_FG3M.png
+│   └── Player_PF_FG3M.png
+└── src/
+    ├── Data_ingestion/
+    │   ├── README.md
+    │   ├── data_dictionary.md
+    │   └── fetch_gamelogs.py
+    └── EDA/
+        └── explore.py
 ```
 
-The EDA code, figures, data dictionary, environment file, and midterm report will be added as they are finalized.
+The EDA code, figures, and data dictionary are included in the repository. The environment file and final midterm report will be added before submission.
 
 ## Running the data collection
 
@@ -53,29 +61,34 @@ python -m pip install nba_api pandas requests
 From the repository root, run:
 
 ```bash
-python Data_ingestion/fetch_gamelogs.py
+python src/Data_ingestion/fetch_gamelogs.py
 ```
 
-The script saves output in `data/raw/`. It caches per-season CSV files and combines them into player and team game-log files. Internet access is required for uncached downloads.
+The script caches per-season CSV files and combines them into player and team game-log files. Internet access is required for uncached downloads.
+
+The intended output directory is `data/raw/` at the repository root. With the script now located in `src/Data_ingestion/`, this requires `RAW = Path(__file__).resolve().parents[2] / "data" / "raw"`. If the script still uses `parents[1]`, it writes to `src/data/raw/` instead. The output path and the EDA input path need to be aligned before reproducing the analysis.
 
 Optional commands:
 
 ```bash
 # Start with the 2020–21 season
-python Data_ingestion/fetch_gamelogs.py --start 2020-21
+python src/Data_ingestion/fetch_gamelogs.py --start 2020-21
 
 # Retrieve playoff records instead of regular-season records
-python Data_ingestion/fetch_gamelogs.py --playoffs
+python src/Data_ingestion/fetch_gamelogs.py --playoffs
 
 # Download records again instead of using cached files
-python Data_ingestion/fetch_gamelogs.py --refresh
+python src/Data_ingestion/fetch_gamelogs.py --refresh
 ```
 
 By default, the script requests seasons from 2015–16 through the current season. It does not stop at 2025–26, so running it later may produce a dataset that differs from the midterm dataset.
 
-## Planned analysis
+## Exploratory analysis
 
-- Explore the distribution of player-game `FG3M` and variation across players and teams.
+The EDA script is located at `src/EDA/explore.py`. The current figures examine team average three-pointers made per game, player cumulative minutes versus cumulative three-pointers, and player average personal fouls versus average three-pointers. Figure files are stored in `figures/`.
+
+## Planned modeling
+
 - Construct historical features without using statistics from the target game.
 - Compare regression models on later games and assess their predictive accuracy.
 - Examine whether predictions could support opponent preparation and player evaluation.
