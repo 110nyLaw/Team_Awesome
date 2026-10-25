@@ -50,12 +50,12 @@ The EDA code, figures, and data dictionary are included in the repository. The e
 
 ## Running the data collection
 
-The script requires Python with `nba_api`, `pandas`, and `requests`. The Python and package versions used by the team will be documented in an environment file; that file is not yet included in the current repository.
+Data collection requires Python with `nba_api`, `pandas`, and `requests`. EDA additionally uses `numpy` and `matplotlib`. The Python and package versions used by the team will be documented in an environment file; that file is not yet included in the current repository.
 
 For a provisional setup, install the required packages in your Python environment:
 
 ```bash
-python -m pip install nba_api pandas requests
+python -m pip install nba_api pandas requests numpy matplotlib
 ```
 
 From the repository root, run:
@@ -66,7 +66,7 @@ python src/Data_ingestion/fetch_gamelogs.py
 
 The script caches per-season CSV files and combines them into player and team game-log files. Internet access is required for uncached downloads.
 
-The intended output directory is `data/raw/` at the repository root. With the script now located in `src/Data_ingestion/`, this requires `RAW = Path(__file__).resolve().parents[2] / "data" / "raw"`. If the script still uses `parents[1]`, it writes to `src/data/raw/` instead. The output path and the EDA input path need to be aligned before reproducing the analysis.
+Both the collection script and the EDA script use `data/raw/` at the repository root. Generated figures are saved to `figures/`.
 
 Optional commands:
 
@@ -87,6 +87,18 @@ By default, the script requests seasons from 2015–16 through the current seaso
 
 The EDA script is located at `src/EDA/explore.py`. The current figures examine team average three-pointers made per game, player cumulative minutes versus cumulative three-pointers, and player average personal fouls versus average three-pointers. Figure files are stored in `figures/`.
 
+Run the EDA from the repository root after collecting the data:
+
+```bash
+python src/EDA/explore.py
+```
+
+The script reads `player_gamelogs_regular.csv` and `team_gamelogs_regular.csv` from `data/raw/`. It removes `WL`, `VIDEO_AVAILABLE`, `PLUS_MINUS`, and `FTM` in memory for analysis, leaving 28 player columns and 25 team columns. The raw CSV files are unchanged.
+
+The minutes-versus-three-pointers figure selects the 10 lowest and 10 highest cumulative-minute players among players with at least 48 cumulative minutes. The trend line is fitted to those selected players. The personal-fouls figure uses each player's mean fouls and mean three-pointers over their recorded appearances. These are descriptive summaries, not pregame predictors.
+
+The current figure titles refer to the report's 2015–16 through 2025–26 period. Use the corresponding data snapshot when reproducing these figures; the collection script's default current-season endpoint can otherwise include later records.
+
 ## Planned modeling
 
 - Construct historical features without using statistics from the target game.
@@ -96,4 +108,5 @@ The EDA script is located at `src/EDA/explore.py`. The current figures examine t
 ## License
 
 The team’s original code is released under the [MIT License](LICENSE). This license does not grant rights to NBA data or other third-party materials.
+
 
