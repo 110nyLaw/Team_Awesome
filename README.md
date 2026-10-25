@@ -24,7 +24,7 @@ The documented data collection covers the **2015–16 through 2025–26 regular 
 
 The player records cover 1,554 distinct players and 13,209 games. Raw CSV files are excluded from version control and can be generated using the collection script.
 
-See [the data collection README](Data_ingestion/README.md) for additional details about the source, cached files, missing values, and data checks. These descriptive statistics refer to the documented collection; later downloads may contain additional records.
+Every column of both files is documented in [the data dictionary](Data_ingestion/data_dictionary.md), which gives each column's type, unit, admissible values, observed range, variable kind, and missing count. See [the data collection README](Data_ingestion/README.md) for additional details about the source, cached files, missing values, and data checks. These descriptive statistics refer to the documented collection; later downloads may contain additional records.
 
 ## Current repository structure
 
@@ -35,10 +35,11 @@ Team_Awesome/
 ├── .gitignore
 └── Data_ingestion/
     ├── README.md
+    ├── data_dictionary.md
     └── fetch_gamelogs.py
 ```
 
-The EDA code, figures, data dictionary, environment file, and midterm report will be added as they are finalized.
+The EDA code, figures, environment file, and midterm report will be added as they are finalized.
 
 ## Running the data collection
 
