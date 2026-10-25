@@ -10,10 +10,10 @@ Raw files are written untouched -- no renaming, no derived columns. Cleaning and
 feature engineering belong downstream.
 
 Usage:
-    python fetch_gamelogs.py                      # 2015-16 .. current, regular season
-    python fetch_gamelogs.py --start 2020-21
-    python fetch_gamelogs.py --playoffs
-    python fetch_gamelogs.py --refresh            # re-download cached seasons
+    python src/EDA/fetch_gamelogs.py                      # 2015-16 .. current, regular season
+    python src/EDA/fetch_gamelogs.py --start 2020-21
+    python src/EDA/fetch_gamelogs.py --playoffs
+    python src/EDA/fetch_gamelogs.py --refresh            # re-download cached seasons
 """
 
 import argparse
@@ -24,24 +24,39 @@ import pandas as pd
 from nba_api.stats.endpoints import leaguegamelog
 from requests.exceptions import ReadTimeout
 
-RAW = Path(__file__).resolve().parents[1] / "data" / "raw"
+RAW = Path(__file__).resolve().parents[2] / "data" / "raw"
 START_SEASON = "2015-16"
 PAUSE = 1.5          # seconds between requests; stats.nba.com throttles bursts
 TIMEOUT = 60
 RETRIES = 3
 
-
+'''
+converts season into years split over
+PARAMS: 
+    year the season started
+RETURN: string representation of start year and end year of given season
+'''
 def season_str(start_year):
     """2024 -> '2024-25'"""
     return f"{start_year}-{str(start_year + 1)[-2:]}"
 
 
+'''
+defines the correct start season
+PARAMS: 
+    today 
+RETURN:
+    the correct year the season started
+'''
 def current_season_start(today=None):
     """NBA seasons open in October, so Jan-Sep belongs to the previous start year."""
     today = today or pd.Timestamp.today()
     return today.year if today.month >= 10 else today.year - 1
 
 
+'''
+get the current
+'''
 def seasons_through_now(start=START_SEASON):
     first = int(start[:4])
     return [season_str(y) for y in range(first, current_season_start() + 1)]

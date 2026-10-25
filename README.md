@@ -1,87 +1,80 @@
-# Team_Awesome
-Data 1030 Project
 # Predicting NBA Players’ Three-Point Production Using Machine Learning
 
 **DATA1030 | Brown University | Fall 2026**  
- Yinge Tong, Nyla Lawrence, and Ruben Chung
+**Team Awesome:** Yinge Tong, Nyla Lawrence, and Ruben Chung
 
 ## Project overview
 
-This project investigates whether historical player performance and game context can predict the number of three-pointers a player will make in their next NBA game appearance. The target variable is three-point field goals made (`FG3M`), and we frame the prediction as a supervised regression task.
+We aim to predict how many three-pointers an NBA player will make in their next game appearance using past performance and game context. The target is three-point field goals made (`FG3M`), framed as a regression problem.
 
-The midterm work focuses on data collection, documentation, and exploratory data analysis. Planned predictors include recent shooting performance, historical playing time, and opponent statistics computed from previous games. We plan to train models on earlier games and evaluate them on later games, using only information available before the target game. Predictions are conditional on player participation.
+Our midterm work covers data collection and exploratory analysis. Model training is planned for the next stage, using earlier games to predict later games.
 
 ## Data
 
-Player and team game logs are collected from [NBA Stats](https://www.nba.com/stats/) through the `LeagueGameLog` endpoint of the [`nba_api`](https://github.com/swar/nba_api) Python package.
-
-The documented data collection covers the **2015–16 through 2025–26 regular seasons**:
+We collect player and team game logs from [NBA Stats](https://www.nba.com/stats/) using the `LeagueGameLog` endpoint of [`nba_api`](https://github.com/swar/nba_api).
+The team's documented dataset covers the 2015–16 through 2025–26 regular seasons:
 
 | Dataset | Observations | Unit of observation |
 | --- | ---: | --- |
 | Player game logs | 281,163 | One player’s appearance in one game |
 | Team game logs | 26,418 | One team in one game |
 
-The player records cover 1,554 distinct players and 13,209 games. Raw CSV files are excluded from version control and can be generated using the collection script.
+The collection includes 1,554 players and 13,209 games. Raw CSV files are excluded from GitHub.
 
-Every column of both files is documented in [the data dictionary](Data_ingestion/data_dictionary.md), which gives each column's type, unit, admissible values, observed range, variable kind, and missing count. See [the data collection README](Data_ingestion/README.md) for additional details about the source, cached files, missing values, and data checks. These descriptive statistics refer to the documented collection; later downloads may contain additional records.
+- [Collection details](src/Data_ingestion/README.md)
+- [Data dictionary](src/Data_ingestion/data_dictionary.md)
 
-## Current repository structure
+## Repository structure
 
 ```text
 Team_Awesome/
 ├── README.md
 ├── LICENSE
 ├── .gitignore
-└── Data_ingestion/
-    ├── README.md
-    ├── data_dictionary.md
-    └── fetch_gamelogs.py
+├── report
+│   ├── data1030 midterm.pdf
+├── figures/
+│   ├── 3_Avg_Team_Game.png
+│   ├── Player_Minutes_FG3M.png
+│   └── Player_PF_FG3M.png
+└── src/
+    ├── Data_ingestion/
+    │   ├── README.md
+    │   ├── data_dictionary.md
+    │   └── fetch_gamelogs.py
+    └── EDA/
+        └── explore.py
 ```
+## Running the scripts
 
-The EDA code, figures, environment file, and midterm report will be added as they are finalized.
-
-## Running the data collection
-
-The script requires Python with `nba_api`, `pandas`, and `requests`. The Python and package versions used by the team will be documented in an environment file; that file is not yet included in the current repository.
-
-For a provisional setup, install the required packages in your Python environment:
+The scripts use `nba_api`, `pandas`, `requests`, `numpy`, and `matplotlib`.  The command below installs the required packages without pinning versions:
 
 ```bash
-python -m pip install nba_api pandas requests
+python -m pip install nba_api pandas requests numpy matplotlib
 ```
 
-From the repository root, run:
+Run these commands from the repository root:
 
 ```bash
-python Data_ingestion/fetch_gamelogs.py
+# Download game logs to data/raw/
+python src/Data_ingestion/fetch_gamelogs.py
+
+# Analyze the data and save plots to figures/
+python src/EDA/explore.py
 ```
 
-The script saves output in `data/raw/`. It caches per-season CSV files and combines them into player and team game-log files. Internet access is required for uncached downloads.
+The collection script caches each season and combines the results into player and team CSV files. It requires internet access for new downloads. Available options are `--start 2020-21`, `--playoffs`, and `--refresh`.
 
-Optional commands:
+**Data range:** The script downloads from 2015–16 through the current season by default. It has no end-season option, so a new download may include games outside the report's period. The existing figures describe the documented 2015–16 through 2025–26 dataset.
 
-```bash
-# Start with the 2020–21 season
-python Data_ingestion/fetch_gamelogs.py --start 2020-21
+## Exploratory analysis
+The three figures compare team average three-pointers per game, player cumulative minutes and three-pointers, and player average fouls and three-pointers.
 
-# Retrieve playoff records instead of regular-season records
-python Data_ingestion/fetch_gamelogs.py --playoffs
+The EDA script removes `WL`, `VIDEO_AVAILABLE`, `PLUS_MINUS`, and `FTM` in memory, leaving 28 player columns and 25 team columns in the documented dataset. It does not change the raw CSV files.
 
-# Download records again instead of using cached files
-python Data_ingestion/fetch_gamelogs.py --refresh
-```
-
-By default, the script requests seasons from 2015–16 through the current season. It does not stop at 2025–26, so running it later may produce a dataset that differs from the midterm dataset.
-
-## Planned analysis
-
-- Explore the distribution of player-game `FG3M` and variation across players and teams.
-- Construct historical features without using statistics from the target game.
-- Compare regression models on later games and assess their predictive accuracy.
-- Examine whether predictions could support opponent preparation and player evaluation.
 
 ## License
 
-The team’s original code is released under the [MIT License](LICENSE). This license does not grant rights to NBA data or other third-party materials.
+The team’s original code is released under the [MIT License](LICENSE). 
+
 
