@@ -31,6 +31,8 @@ Team_Awesome/
 ├── README.md
 ├── LICENSE
 ├── .gitignore
+├── report
+│   ├── data1030 midterm.pdf
 ├── figures/
 │   ├── 3_Avg_Team_Game.png
 │   ├── Player_Minutes_FG3M.png
