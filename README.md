@@ -30,41 +30,50 @@ The collection includes 1,554 players and 13,209 games. Raw CSV files are exclud
 Team_Awesome/
 ├── README.md
 ├── LICENSE
-├── .gitignore
-├── report
-│   ├── midterm.pdf
-├── figures/
-│   ├── 3_Avg_Team_Game.png
-│   ├── Player_Minutes_FG3M.png
-│   └── Player_PF_FG3M.png
+├── data1030.yml
+├── data/
+│   └── raw/                  # Combined and per-season CSV files
+├── report/
+│   └── midterm.pdf
+├── figures/                  
 └── src/
     ├── Data_ingestion/
     │   ├── README.md
     │   ├── data_dictionary.md
     │   └── fetch_gamelogs.py
     └── EDA/
+        ├── README.md
         └── explore.py
 ```
 ## Running the scripts
 
-The scripts use `nba_api`, `pandas`, `requests`, `numpy`, and `matplotlib`.  The command below installs the required packages without pinning versions:
+The supplied [Conda environment file](data1030.yml) specifies Python 3.14.6, pandas 3.0.3, NumPy 2.4.6, and Matplotlib 3.11.0, along with other course packages.
+
+From the repository root, create and activate the environment:
 
 ```bash
-python -m pip install nba_api pandas requests numpy matplotlib
+conda env create -f data1030.yml
+conda activate data1030
 ```
 
-Run these commands from the repository root:
+The YAML includes a machine-specific `prefix: /opt/conda` line. Remove that line before creating the environment on another computer.
+
+Run EDA using the CSV files already included:
 
 ```bash
-# Download game logs to data/raw/
-python src/Data_ingestion/fetch_gamelogs.py
-
-# Analyze the data and save plots to figures/
 python src/EDA/explore.py
 ```
 
-The collection script caches each season and combines the results into player and team CSV files. It requires internet access for new downloads. Available options are `--start 2020-21`, `--playoffs`, and `--refresh`.
+This prints statistics and correlations and saves three plots to `figures/`.
 
+To download fresh data, first install the collection dependencies, which are not explicitly listed in the YAML:
+
+```bash
+python -m pip install nba_api requests
+python src/Data_ingestion/fetch_gamelogs.py
+```
+
+The collection script caches each season and combines the results into player and team CSV files. It requires internet access for new downloads. Available options are `--start 2020-21`, `--playoffs`, and `--refresh`.
 **Data range:** The script downloads from 2015–16 through the current season by default. It has no end-season option, so a new download may include games outside the report's period. The existing figures describe the documented 2015–16 through 2025–26 dataset.
 
 ## Exploratory analysis
