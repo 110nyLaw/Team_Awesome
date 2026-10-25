@@ -32,7 +32,7 @@ Team_Awesome/
 ├── LICENSE
 ├── .gitignore
 ├── report
-│   ├── data1030 midterm.pdf
+│   ├── midterm.pdf
 ├── figures/
 │   ├── 3_Avg_Team_Game.png
 │   ├── Player_Minutes_FG3M.png
